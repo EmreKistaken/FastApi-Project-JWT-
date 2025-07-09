@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Veritabanı
+  db:
+    image: postgres:15
+    container_name: fastapi_postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: oygk3862
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fastapi_network
+    restart: unless-stopped
+
+  # FastAPI Uygulaması
+  app:
+    build: .
+    container_name: fastapi_app
+    environment:
+      DATABASE_URL: postgresql://postgres:oygk3862@db:5432/postgres
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - fastapi_network
+    restart: unless-stopped
+    volumes:
+      - ./:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
+
+networks:
+  fastapi_network:
+    driver: bridge 
