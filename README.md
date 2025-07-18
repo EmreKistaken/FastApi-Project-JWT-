@@ -1,72 +1,87 @@
-# FastAPI Öğrenme Projesi 🚀
+# FastAPI + React Kullanıcı Yönetimi Projesi 🚀
 
-Bu proje, FastAPI ile JWT Authentication ve PostgreSQL kullanarak modern bir API geliştirme örneğidir. Proje, Docker Compose ile kolayca ayağa kaldırılabilir ve taşınabilir bir geliştirme ortamı sunar.
+Bu proje, FastAPI ile JWT Authentication ve PostgreSQL kullanarak modern bir API ve React tabanlı bir kullanıcı arayüzü örneğidir. Hem backend hem frontend içerir.
 
 ## Özellikler
-
-- FastAPI ile hızlı ve modern API geliştirme
+- FastAPI ile hızlı ve modern API
 - JWT tabanlı kimlik doğrulama
 - PostgreSQL veritabanı
-- Docker ve Docker Compose ile kolay kurulum
-- Swagger (OpenAPI) dokümantasyonu (`/docs`)
-- Kullanıcı yönetimi ve authentication endpoint'leri
+- React ile kullanıcı dostu arayüz
+- Admin paneli (sadece admin kullanıcılar erişebilir)
+- Kullanıcı yönetimi (kayıt, giriş, listeleme, silme)
 
 ## Kurulum
 
-### 1. Gerekli Araçlar
+### Gereksinimler
+- Python 3.10+
+- Node.js (frontend için)
+- PostgreSQL
 
-- [Docker](https://www.docker.com/products/docker-desktop)
-- [Docker Compose](https://docs.docker.com/compose/)
-
-### 2. Projeyi Klonla
+### 1. Backend Kurulumu
 
 ```bash
 git clone https://github.com/EmreKistaken/FastApi-Project-JWT-.git
 cd FastApi-Project-JWT-
+python -m venv venv
+venv\Scripts\activate  # Windows için
+yada
+source venv/bin/activate  # Mac/Linux için
+pip install -r requirements.txt
 ```
 
-### 3. Docker ile Başlat
+Veritabanı ayarlarını `.env` dosyasından yapın. Gerekirse örnek dosyayı kopyalayın:
+```bash
+cp .env.example .env
+```
+
+Veritabanını başlatın ve tabloları oluşturun (gerekirse Alembic veya manuel migration kullanın).
+
+### 2. Frontend Kurulumu
 
 ```bash
-docker-compose up -d
+cd frontend
+npm install
+npm start
 ```
 
-- FastAPI: [http://localhost:8000](http://localhost:8000)
-- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
-- PostgreSQL: localhost:15432 (varsayılan şifre ve kullanıcı için docker-compose.yml dosyasına bakın)
+Frontend arayüzü: [http://localhost:3000](http://localhost:3000)
+
+### 3. Backend'i Başlat
+
+Ana dizinde:
+```bash
+uvicorn main:app --reload
+```
+
+API: [http://localhost:8000](http://localhost:8000)
+Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ### 4. Test Kullanıcıları Eklemek için
 
 ```bash
-docker-compose exec app python add_test_users.py
+python add_test_users.py
 ```
 
 ## Kullanım
-
 - `/auth/register` : Kullanıcı kaydı
 - `/auth/login` : Giriş ve JWT token alma
 - `/auth/me` : Token ile kimlik doğrulama
 - `/users/` : Kullanıcıları listele
-- `/users/protected` : Sadece yetkili kullanıcılar için
 - `/users/users/{user_id}` : Kullanıcı silme (DELETE)
-- `/users/users/add-test-users/` : Test kullanıcıları ekleme
 
-## Ortam Değişkenleri
-
-`.env.example` dosyasını kopyalayıp `.env` olarak düzenleyebilirsiniz.
+## Admin Paneli Hakkında
+- **Admin paneline erişmek için, kullanıcı hesabınızın `admin` alanını veritabanında elle `true` yapmalısınız.**
+- Kayıt veya test kullanıcı ekleme işlemlerinde admin yetkisi otomatik verilmez.
+- Admin paneli sadece admin kullanıcılar için görünür.
 
 ## Geliştirme
-
-Kodda değişiklik yaptığınızda, Docker ile hot-reload otomatik olarak devreye girer.
+Kodda değişiklik yaptığınızda, frontend ve backend otomatik olarak güncellenir (hot-reload).
 
 ## Katkı
-
 Pull request ve issue’larınızı bekliyorum!
 
 ## Lisans
-
 MIT
 
 ---
-
-> **Not:** Ana sayfada `{"message": "FastAPI Docker ile çalışıyor!"}` mesajı görüyorsanız, her şey yolunda demektir. 
+> **Not:** Ana sayfada `{"message": "FastAPI Docker ile çalışıyor!"}` mesajı görüyorsanız, backend başarıyla çalışıyor demektir. 

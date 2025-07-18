@@ -4,6 +4,7 @@ from database import SessionLocal
 import crud, schemas, auth
 import random
 from typing import List
+from schemas import UserUpdate
 
 router = APIRouter()
 
@@ -14,7 +15,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/users/")
+@router.post("/")
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), current_user: str = Depends(auth.get_current_user)):
     created_user = crud.create_user(db=db, user=user)
     return {
@@ -24,9 +25,6 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), current
 
 @router.get("/", response_model=List[schemas.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: str = Depends(auth.get_current_user)):
-    user = crud.get_user_by_username(db, username=current_user)
-    if user and bool(user.admin):
-        raise HTTPException(status_code=403, detail="Admin kullanıcılar bu listeye erişemez.")
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
 
@@ -53,6 +51,19 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: str =
     return {
         "message": f"ID'si {user_id} olan kullanıcı silindi.",
         "user": user_to_delete
+    }
+
+@router.patch("/{user_id}")
+def admin_update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db), current_user: str = Depends(auth.get_current_user)):
+    user = crud.get_user_by_username(db, username=current_user)
+    if not user or not bool(user.admin):
+        raise HTTPException(status_code=403, detail="Bu işlemi yapmak için admin olmalısınız.")
+    updated_user = crud.update_user(db, user_id=user_id, user_update=user_update)
+    if updated_user is None:
+        raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı")
+    return {
+        "message": f"ID'si {user_id} olan kullanıcı güncellendi.",
+        "user": updated_user
     }
 
 @router.post("/users/add-test-users/")

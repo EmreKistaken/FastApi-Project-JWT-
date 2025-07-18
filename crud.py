@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from models import User
 from schemas import UserCreate
+from schemas import UserUpdate
 from auth import get_password_hash
 
 # Kullanıcı oluşturma
@@ -11,7 +12,7 @@ def create_user(db: Session, user: UserCreate):
         email=user.email, 
         username=user.username,
         hashed_password=hashed_password,
-        admin=False  # Her zaman False
+        admin=user.admin
     )
     db.add(db_user)
     db.commit()
@@ -36,4 +37,23 @@ def delete_user(db: Session, user_id: int):
     if user:
         db.delete(user)
         db.commit()
+    return user 
+
+# Kullanıcı güncelleme
+def update_user(db: Session, user_id: int, user_update: UserUpdate):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+    if user_update.name is not None:
+        user.name = user_update.name
+    if user_update.email is not None:
+        user.email = user_update.email
+    if user_update.username is not None:
+        user.username = user_update.username
+    if user_update.password is not None:
+        user.hashed_password = get_password_hash(user_update.password)
+    if user_update.admin is not None:
+        user.admin = user_update.admin
+    db.commit()
+    db.refresh(user)
     return user 
